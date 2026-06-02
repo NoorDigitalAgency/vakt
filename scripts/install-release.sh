@@ -205,6 +205,14 @@ configure_values() {
 
 write_config() {
   mkdir -p "$INSTALL_DIR"
+  
+  # Backup existing config if it exists
+  if [ -f "$CONFIG_DEST" ]; then
+    local backup_path="${CONFIG_DEST}.backup.$(date +%Y%m%d-%H%M%S)"
+    echo "Backing up existing config to $backup_path"
+    cp "$CONFIG_DEST" "$backup_path"
+  fi
+  
   cat > "$CONFIG_DEST" <<CONFIG
 monitor:
   poll_interval: ${POLL_INTERVAL}
