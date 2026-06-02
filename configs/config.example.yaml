@@ -1,0 +1,33 @@
+monitor:
+  poll_interval: 15s
+  snapshot_schedule: "0 */6 * * *"
+  storage_path: "/"
+  host_alias: ""
+  http_timeout: 10s
+
+notifications:
+  slack:
+    webhook_url: "https://hooks.slack.com/services/REPLACE/ME"
+    channel: "#ops-alerts"
+    username: "vakt"
+    icon_emoji: ":satellite:"
+
+thresholds:
+  cpu:
+    percent: 85
+    sustain_for: 2m
+    clear_for: 5m
+    followup_step_percent: 5
+    cooldown: 15m
+  memory:
+    percent: 90
+    sustain_for: 2m
+    clear_for: 5m
+    followup_step_percent: 5
+    cooldown: 15m
+  storage:
+    percent: 90
+    sustain_for: 5m
+    clear_for: 10m
+    followup_step_percent: 3
+    cooldown: 30m

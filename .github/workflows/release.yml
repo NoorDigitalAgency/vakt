@@ -1,0 +1,77 @@
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Compute release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          date_prefix="$(date -u +'%Y.%m.%d')"
+          max_revision="$(git tag -l "v${date_prefix}.*" | sed -nE 's/^v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.([0-9]+)$/\1/p' | sort -n | tail -1)"
+          revision=$(( ${max_revision:-0} + 1 ))
+          version="v${date_prefix}.${revision}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release artifacts
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/package-release.sh
+
+      - name: Create versioned release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release delete "$VERSION" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag=true
+          fi
+          gh release create "$VERSION" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$VERSION" \
+            --generate-notes \
+            dist/vakt_linux_amd64.tar.gz \
+            dist/vakt_linux_amd64.tar.gz.sha256
+
+      - name: Update latest release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git tag -f latest
+          git push origin refs/tags/latest --force
+          if gh release view latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release delete latest --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag=false
+          fi
+          gh release create latest \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "latest" \
+            --notes "Tracks ${VERSION}" \
+            dist/vakt_linux_amd64.tar.gz \
+            dist/vakt_linux_amd64.tar.gz.sha256
