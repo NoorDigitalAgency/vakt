@@ -53,7 +53,7 @@ type cpuSample struct {
 }
 
 const (
-	publicIPLookupURL      = "https://api.ipify.org"
+	publicIPLookupURL       = "https://api.ipify.org"
 	publicIPRefreshInterval = 15 * time.Minute
 )
 
