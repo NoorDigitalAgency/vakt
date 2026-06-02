@@ -1,0 +1,17 @@
+[Unit]
+Description=Vakt Linux resource monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/vakt run --config /etc/vakt/config.yaml
+Restart=always
+RestartSec=5s
+AmbientCapabilities=CAP_DAC_READ_SEARCH
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
