@@ -104,7 +104,8 @@ func (s *SlackNotifier) buildPayload(notification Notification) slackPayload {
 		{Type: "mrkdwn", Text: fmt.Sprintf("*Memory*\n%.2f%% (%s / %s)", snapshot.MemoryUsagePercent, humanBytes(snapshot.MemoryUsedBytes), humanBytes(snapshot.MemoryTotalBytes))},
 		{Type: "mrkdwn", Text: fmt.Sprintf("*Storage*\n%.2f%% (%s / %s on `%s`)", snapshot.StorageUsagePercent, humanBytes(snapshot.StorageUsedBytes), humanBytes(snapshot.StorageTotalBytes), snapshot.StoragePath)},
 		{Type: "mrkdwn", Text: fmt.Sprintf("*Load*\n%.2f / %.2f / %.2f", snapshot.Load1, snapshot.Load5, snapshot.Load15)},
-		{Type: "mrkdwn", Text: fmt.Sprintf("*Host*\n`%s`", snapshot.Hostname)},
+		{Type: "mrkdwn", Text: fmt.Sprintf("*Server*\n`%s`", snapshot.Hostname)},
+		{Type: "mrkdwn", Text: fmt.Sprintf("*Public IP*\n`%s`", publicIPText(snapshot.PublicIP))},
 		{Type: "mrkdwn", Text: fmt.Sprintf("*Uptime*\n%s", snapshot.Uptime.Round(time.Second))},
 	}
 
@@ -155,4 +156,11 @@ func humanBytes(value uint64) string {
 		return fmt.Sprintf("%d %s", value, units[unit])
 	}
 	return fmt.Sprintf("%.2f %s", size, units[unit])
+}
+
+func publicIPText(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return "unavailable"
+	}
+	return value
 }

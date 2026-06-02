@@ -18,7 +18,7 @@ ICON_EMOJI=""
 POLL_INTERVAL=""
 SNAPSHOT_SCHEDULE=""
 STORAGE_PATH=""
-HOST_ALIAS=""
+SERVER_NAME=""
 HTTP_TIMEOUT=""
 CPU_PERCENT=""
 CPU_SUSTAIN_FOR=""
@@ -49,7 +49,7 @@ Options:
   --poll-interval <duration>
   --snapshot-schedule <cron>
   --storage-path <path>
-  --host-alias <name>
+  --server-name <name>
   --http-timeout <duration>
   --cpu-percent <number>
   --cpu-sustain-for <duration>
@@ -105,7 +105,7 @@ parse_args() {
       --poll-interval) POLL_INTERVAL="$2"; shift 2 ;;
       --snapshot-schedule) SNAPSHOT_SCHEDULE="$2"; shift 2 ;;
       --storage-path) STORAGE_PATH="$2"; shift 2 ;;
-      --host-alias) HOST_ALIAS="$2"; shift 2 ;;
+      --server-name|--host-alias) SERVER_NAME="$2"; shift 2 ;;
       --http-timeout) HTTP_TIMEOUT="$2"; shift 2 ;;
       --cpu-percent) CPU_PERCENT="$2"; shift 2 ;;
       --cpu-sustain-for) CPU_SUSTAIN_FOR="$2"; shift 2 ;;
@@ -177,6 +177,9 @@ download_release() {
 }
 
 configure_values() {
+  local default_server_name
+  default_server_name="${HOSTNAME:-$(hostname 2>/dev/null || uname -n 2>/dev/null || printf 'unknown-host')}"
+
   WEBHOOK_URL="$(prompt_value 'Slack webhook URL' 'https://hooks.slack.com/services/REPLACE/ME' "$WEBHOOK_URL")"
   CHANNEL="$(prompt_value 'Slack channel' '#ops-alerts' "$CHANNEL")"
   USERNAME="$(prompt_value 'Slack username' 'vakt' "$USERNAME")"
@@ -184,7 +187,7 @@ configure_values() {
   POLL_INTERVAL="$(prompt_value 'Poll interval' '15s' "$POLL_INTERVAL")"
   SNAPSHOT_SCHEDULE="$(prompt_value 'Snapshot cron schedule' '0 */6 * * *' "$SNAPSHOT_SCHEDULE")"
   STORAGE_PATH="$(prompt_value 'Storage path' '/' "$STORAGE_PATH")"
-  HOST_ALIAS="$(prompt_value 'Host alias' '' "$HOST_ALIAS")"
+  SERVER_NAME="$(prompt_value 'Server name' "$default_server_name" "$SERVER_NAME")"
   HTTP_TIMEOUT="$(prompt_value 'HTTP timeout' '10s' "$HTTP_TIMEOUT")"
   CPU_PERCENT="$(prompt_value 'CPU threshold percent' '85' "$CPU_PERCENT")"
   CPU_SUSTAIN_FOR="$(prompt_value 'CPU sustain period' '2m' "$CPU_SUSTAIN_FOR")"
@@ -218,7 +221,7 @@ monitor:
   poll_interval: ${POLL_INTERVAL}
   snapshot_schedule: "$(yaml_escape "$SNAPSHOT_SCHEDULE")"
   storage_path: "$(yaml_escape "$STORAGE_PATH")"
-  host_alias: "$(yaml_escape "$HOST_ALIAS")"
+  server_name: "$(yaml_escape "$SERVER_NAME")"
   http_timeout: ${HTTP_TIMEOUT}
 
 notifications:

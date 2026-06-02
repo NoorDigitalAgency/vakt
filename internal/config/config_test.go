@@ -16,6 +16,7 @@ func TestLoadValidConfig(t *testing.T) {
   poll_interval: 10s
   snapshot_schedule: "*/15 * * * *"
   storage_path: "/"
+  server_name: "server-1"
   http_timeout: 5s
 notifications:
   slack:
@@ -54,6 +55,9 @@ thresholds:
 	}
 	if got := cfg.Thresholds.Storage.FollowupStepPercent; got != 2 {
 		t.Fatalf("storage followup step = %v, want 2", got)
+	}
+	if got := cfg.Monitor.ServerName; got != "server-1" {
+		t.Fatalf("server name = %q, want %q", got, "server-1")
 	}
 }
 

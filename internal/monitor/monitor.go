@@ -2,8 +2,12 @@ package monitor
 
 import (
 	"bufio"
+	"context"
 	"fmt"
+	"io"
 	"math"
+	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -15,6 +19,7 @@ import (
 type Snapshot struct {
 	Timestamp           time.Time
 	Hostname            string
+	PublicIP            string
 	CPUUsagePercent     float64
 	MemoryUsagePercent  float64
 	MemoryUsedBytes     uint64
@@ -33,8 +38,13 @@ type Collector struct {
 	hostname string
 	path     string
 
-	mu      sync.Mutex
-	prevCPU *cpuSample
+	httpClient       *http.Client
+	publicIPResolver func(context.Context, *http.Client) (string, error)
+
+	mu              sync.Mutex
+	prevCPU         *cpuSample
+	publicIP        string
+	publicIPChecked time.Time
 }
 
 type cpuSample struct {
@@ -42,8 +52,19 @@ type cpuSample struct {
 	total uint64
 }
 
-func NewCollector(hostname, path string) *Collector {
-	return &Collector{hostname: hostname, path: path}
+const (
+	publicIPLookupURL      = "https://api.ipify.org"
+	publicIPRefreshInterval = 15 * time.Minute
+)
+
+func NewCollector(hostname, path string, httpTimeout time.Duration) *Collector {
+	client := &http.Client{Timeout: httpTimeout}
+	return &Collector{
+		hostname:         hostname,
+		path:             path,
+		httpClient:       client,
+		publicIPResolver: fetchPublicIP,
+	}
 }
 
 func (c *Collector) Collect(now time.Time) (Snapshot, error) {
@@ -51,6 +72,13 @@ func (c *Collector) Collect(now time.Time) (Snapshot, error) {
 	defer c.mu.Unlock()
 
 	snapshot := Snapshot{Timestamp: now, Hostname: c.hostname, StoragePath: c.path}
+	if c.publicIPChecked.IsZero() || now.Sub(c.publicIPChecked) >= publicIPRefreshInterval {
+		if publicIP, err := c.publicIPResolver(context.Background(), c.httpClient); err == nil {
+			c.publicIP = publicIP
+		}
+		c.publicIPChecked = now
+	}
+	snapshot.PublicIP = c.publicIP
 
 	cpuUsage, nextCPU, err := readCPUUsage(c.prevCPU)
 	if err != nil {
@@ -250,4 +278,33 @@ func readUptime() (time.Duration, error) {
 
 func clampPercent(value float64) float64 {
 	return math.Max(0, math.Min(100, value))
+}
+
+func fetchPublicIP(ctx context.Context, client *http.Client) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, publicIPLookupURL, nil)
+	if err != nil {
+		return "", fmt.Errorf("create public ip request: %w", err)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("lookup public ip: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return "", fmt.Errorf("lookup public ip: unexpected status %s", resp.Status)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 64))
+	if err != nil {
+		return "", fmt.Errorf("read public ip response: %w", err)
+	}
+
+	publicIP := strings.TrimSpace(string(body))
+	if parsed := net.ParseIP(publicIP); parsed == nil {
+		return "", fmt.Errorf("lookup public ip: invalid response %q", publicIP)
+	}
+
+	return publicIP, nil
 }

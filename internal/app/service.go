@@ -22,7 +22,10 @@ type Service struct {
 }
 
 func NewService(cfg config.Config) *Service {
-	hostname := cfg.Monitor.HostAlias
+	hostname := cfg.Monitor.ServerName
+	if hostname == "" {
+		hostname = cfg.Monitor.HostAlias
+	}
 	if hostname == "" {
 		resolved, err := os.Hostname()
 		if err != nil {
@@ -34,7 +37,7 @@ func NewService(cfg config.Config) *Service {
 
 	return &Service{
 		cfg:       cfg,
-		collector: monitor.NewCollector(hostname, cfg.Monitor.StoragePath),
+		collector: monitor.NewCollector(hostname, cfg.Monitor.StoragePath, cfg.Monitor.HTTPTimeout),
 		notifier:  notify.NewSlackNotifier(cfg),
 		trackers: []*monitor.ThresholdTracker{
 			monitor.NewThresholdTracker("cpu", cfg.Thresholds.CPU),
