@@ -11,7 +11,7 @@ Linux server monitoring CLI and systemd service for Ubuntu hosts.
 
 ## Configuration
 
-Start from `/tmp/workspace/NoorDigitalAgency/vakt/configs/config.example.yaml` and copy it to `/etc/vakt/config.yaml`.
+Start from `configs/config.example.yaml` and copy it to `/etc/vakt/config.yaml`.
 
 Key settings:
 

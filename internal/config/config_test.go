@@ -1,18 +1,18 @@
 package config
 
 import (
-    "os"
-    "path/filepath"
-    "testing"
-    "time"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
 )
 
 func TestLoadValidConfig(t *testing.T) {
-    t.Parallel()
+	t.Parallel()
 
-    dir := t.TempDir()
-    path := filepath.Join(dir, "config.yaml")
-    content := []byte(`monitor:
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	content := []byte(`monitor:
   poll_interval: 10s
   snapshot_schedule: "*/15 * * * *"
   storage_path: "/"
@@ -40,33 +40,33 @@ thresholds:
     followup_step_percent: 2
     cooldown: 30m
 `)
-    if err := os.WriteFile(path, content, 0o600); err != nil {
-        t.Fatalf("write config: %v", err)
-    }
+	if err := os.WriteFile(path, content, 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
 
-    cfg, err := Load(path)
-    if err != nil {
-        t.Fatalf("Load() error = %v", err)
-    }
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
 
-    if got := cfg.Monitor.PollInterval; got != 10*time.Second {
-        t.Fatalf("poll interval = %v, want %v", got, 10*time.Second)
-    }
-    if got := cfg.Thresholds.Storage.FollowupStepPercent; got != 2 {
-        t.Fatalf("storage followup step = %v, want 2", got)
-    }
+	if got := cfg.Monitor.PollInterval; got != 10*time.Second {
+		t.Fatalf("poll interval = %v, want %v", got, 10*time.Second)
+	}
+	if got := cfg.Thresholds.Storage.FollowupStepPercent; got != 2 {
+		t.Fatalf("storage followup step = %v, want 2", got)
+	}
 }
 
 func TestValidateRejectsInvalidWebhook(t *testing.T) {
-    t.Parallel()
+	t.Parallel()
 
-    cfg := defaultConfig()
-    cfg.Notifications.Slack.WebhookURL = "http://hooks.slack.com/invalid"
-    cfg.Thresholds.CPU.Percent = 80
-    cfg.Thresholds.Memory.Percent = 80
-    cfg.Thresholds.Storage.Percent = 80
+	cfg := defaultConfig()
+	cfg.Notifications.Slack.WebhookURL = "http://hooks.slack.com/invalid"
+	cfg.Thresholds.CPU.Percent = 80
+	cfg.Thresholds.Memory.Percent = 80
+	cfg.Thresholds.Storage.Percent = 80
 
-    if err := cfg.Validate(); err == nil {
-        t.Fatal("Validate() error = nil, want error")
-    }
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("Validate() error = nil, want error")
+	}
 }
