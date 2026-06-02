@@ -144,18 +144,15 @@ func messageHeader(notification Notification) (string, string) {
 }
 
 func humanBytes(value uint64) string {
-	if value < 1024 {
-		return fmt.Sprintf("%d B", value)
-	}
-	units := []string{"KiB", "MiB", "GiB", "TiB", "PiB"}
+	units := []string{"B", "KiB", "MiB", "GiB", "TiB", "PiB"}
 	size := float64(value)
 	unit := 0
 	for size >= 1024 && unit < len(units)-1 {
 		size /= 1024
 		unit++
 	}
-	if size < 1024 {
-		return fmt.Sprintf("%.2f %s", size, units[unit-1])
+	if unit == 0 {
+		return fmt.Sprintf("%d %s", value, units[unit])
 	}
-	return fmt.Sprintf("%.2f %s", size, units[len(units)-1])
+	return fmt.Sprintf("%.2f %s", size, units[unit])
 }

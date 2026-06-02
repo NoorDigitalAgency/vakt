@@ -56,6 +56,7 @@ func TestHumanBytes(t *testing.T) {
 		1024:                   "1.00 KiB",
 		1024 * 1024:            "1.00 MiB",
 		5 * 1024 * 1024 * 1024: "5.00 GiB",
+		1024 * 1024 * 1024 * 1024 * 1024: "1.00 PiB",
 	}
 
 	for input, want := range testCases {
