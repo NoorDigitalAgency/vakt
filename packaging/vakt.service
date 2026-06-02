@@ -5,13 +5,17 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=root
-Group=root
+DynamicUser=yes
+StateDirectory=vakt
+ConfigurationDirectory=vakt
 ExecStart=/usr/local/bin/vakt run --config /etc/vakt/config.yaml
 Restart=always
 RestartSec=5s
-AmbientCapabilities=CAP_DAC_READ_SEARCH
 NoNewPrivileges=true
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/
 
 [Install]
 WantedBy=multi-user.target

@@ -248,7 +248,7 @@ thresholds:
     followup_step_percent: ${STORAGE_FOLLOWUP_STEP_PERCENT}
     cooldown: ${STORAGE_COOLDOWN}
 CONFIG
-  chmod 640 "$CONFIG_DEST"
+  chmod 644 "$CONFIG_DEST"
 }
 
 install_files() {
