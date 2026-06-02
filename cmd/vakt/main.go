@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/NoorDigitalAgency/vakt/internal/app"
@@ -25,7 +26,7 @@ func main() {
 
 func run(args []string, stdout io.Writer) error {
 	command := "run"
-	if len(args) > 0 && args[0] != "--config" && args[0] != "-config" {
+	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
 		command = args[0]
 		args = args[1:]
 	}
