@@ -8,6 +8,7 @@ Linux server monitoring CLI and systemd service for Ubuntu hosts.
 - Posts resource snapshots to a Slack webhook on scheduled intervals and threshold events
 - Sends one alert after sustained high usage, follow-up alerts after further increases, and recovery messages after sustained normalization
 - Ships with a default YAML config, build script, and systemd installation scripts
+- Supports versioned release packaging and curl-based installation from GitHub Releases
 
 ## Configuration
 
@@ -35,11 +36,18 @@ Commands:
 - `run`: start the monitoring loop (default)
 - `snapshot`: send one manual snapshot to Slack
 - `validate-config`: validate the YAML file and exit
+- `version`: print the embedded build version
 
 ## Build
 
 ```bash
 ./scripts/build.sh
+```
+
+Create a release archive locally:
+
+```bash
+VERSION=dev ./scripts/package-release.sh
 ```
 
 ## Install as a service
@@ -49,3 +57,32 @@ Commands:
 3. Verify with `systemctl status vakt.service`
 
 The installer builds a static Linux binary, installs it to `/usr/local/bin/vakt`, installs the default config if one is missing, and enables the packaged systemd unit.
+
+## Install from GitHub Releases
+
+Install the latest published build:
+
+```bash
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh)
+```
+
+Install a specific release tag and accept defaults for any values you do not override:
+
+```bash
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh) -- \
+  --version v2026.06.02.1 \
+  --webhook-url https://hooks.slack.com/services/REPLACE/ME \
+  --channel '#ops-alerts' \
+  --defaults
+```
+
+The release installer downloads `vakt_linux_amd64.tar.gz`, verifies its SHA-256 checksum, prompts for configuration values with defaults, writes `/etc/vakt/config.yaml`, installs the systemd unit, and enables and starts `vakt.service`.
+
+## GitHub Actions release automation
+
+`.github/workflows/release.yml` builds a Linux amd64 archive on every push to `main` and on manual dispatch, then publishes:
+
+- a dated version tag in the form `vYYYY.MM.DD.N`
+- a moving `latest` release with the same assets
+
+Each release includes the archive and a `.sha256` checksum file for the curl installer.
