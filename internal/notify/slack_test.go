@@ -44,6 +44,9 @@ func TestBuildPayloadIncludesSnapshotDetails(t *testing.T) {
 	if got := payload.Text; !strings.Contains(got, "CPU threshold breached") {
 		t.Fatalf("payload.Text = %q, want CPU alert summary", got)
 	}
+	if len(payload.Blocks[1].Fields) < 6 {
+		t.Fatalf("len(payload.Blocks[1].Fields) = %d, want at least 6", len(payload.Blocks[1].Fields))
+	}
 	if got := payload.Blocks[1].Fields[2].Text; !strings.Contains(got, "220.00 GiB") {
 		t.Fatalf("storage field = %q, want formatted size", got)
 	}

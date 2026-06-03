@@ -69,16 +69,26 @@ func NewCollector(hostname, path string, httpTimeout time.Duration) *Collector {
 
 func (c *Collector) Collect(now time.Time) (Snapshot, error) {
 	c.mu.Lock()
+	needsRefresh := c.publicIPChecked.IsZero() || now.Sub(c.publicIPChecked) >= publicIPRefreshInterval
+	c.mu.Unlock()
+
+	var freshIP string
+	if needsRefresh {
+		if ip, err := c.publicIPResolver(context.Background(), c.httpClient); err == nil {
+			freshIP = ip
+		}
+	}
+
+	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	snapshot := Snapshot{Timestamp: now, Hostname: c.hostname, StoragePath: c.path}
-	if c.publicIPChecked.IsZero() || now.Sub(c.publicIPChecked) >= publicIPRefreshInterval {
-		if publicIP, err := c.publicIPResolver(context.Background(), c.httpClient); err == nil {
-			c.publicIP = publicIP
+	if needsRefresh {
+		if freshIP != "" {
+			c.publicIP = freshIP
 		}
 		c.publicIPChecked = now
 	}
-	snapshot.PublicIP = c.publicIP
+	snapshot := Snapshot{Timestamp: now, Hostname: c.hostname, StoragePath: c.path, PublicIP: c.publicIP}
 
 	cpuUsage, nextCPU, err := readCPUUsage(c.prevCPU)
 	if err != nil {
