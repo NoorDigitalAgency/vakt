@@ -64,13 +64,13 @@ The installer builds a static Linux binary, installs it to `/usr/local/bin/vakt`
 Install the latest published build:
 
 ```bash
-sudo bash <(curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh)
+curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh | sudo bash -s --
 ```
 
 Install a specific release tag and accept defaults for any values you do not override:
 
 ```bash
-sudo bash <(curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh) -- \
+curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh | sudo bash -s -- \
   --version v2026.06.02.1 \
   --webhook-url https://hooks.slack.com/services/REPLACE/ME \
   --channel '#ops-alerts' \
