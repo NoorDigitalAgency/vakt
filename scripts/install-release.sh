@@ -12,9 +12,6 @@ TMP_DIR=""
 PACKAGE_DIR=""
 
 WEBHOOK_URL=""
-CHANNEL=""
-USERNAME=""
-ICON_EMOJI=""
 POLL_INTERVAL=""
 SNAPSHOT_SCHEDULE=""
 STORAGE_PATH=""
@@ -43,9 +40,6 @@ Usage: curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/
 Options:
   --version <tag|latest>
   --webhook-url <url>
-  --channel <channel>
-  --username <name>
-  --icon-emoji <emoji>
   --poll-interval <duration>
   --snapshot-schedule <cron>
   --storage-path <path>
@@ -99,9 +93,6 @@ parse_args() {
     case "$1" in
       --version) VERSION="$2"; shift 2 ;;
       --webhook-url) WEBHOOK_URL="$2"; shift 2 ;;
-      --channel) CHANNEL="$2"; shift 2 ;;
-      --username) USERNAME="$2"; shift 2 ;;
-      --icon-emoji) ICON_EMOJI="$2"; shift 2 ;;
       --poll-interval) POLL_INTERVAL="$2"; shift 2 ;;
       --snapshot-schedule) SNAPSHOT_SCHEDULE="$2"; shift 2 ;;
       --storage-path) STORAGE_PATH="$2"; shift 2 ;;
@@ -181,9 +172,6 @@ configure_values() {
   default_server_name="${HOSTNAME:-$(hostname 2>/dev/null || uname -n 2>/dev/null || printf 'unknown-host')}"
 
   WEBHOOK_URL="$(prompt_value 'Slack webhook URL' 'https://hooks.slack.com/services/REPLACE/ME' "$WEBHOOK_URL")"
-  CHANNEL="$(prompt_value 'Slack channel' '#ops-alerts' "$CHANNEL")"
-  USERNAME="$(prompt_value 'Slack username' 'vakt' "$USERNAME")"
-  ICON_EMOJI="$(prompt_value 'Slack icon emoji' ':satellite:' "$ICON_EMOJI")"
   POLL_INTERVAL="$(prompt_value 'Poll interval' '15s' "$POLL_INTERVAL")"
   SNAPSHOT_SCHEDULE="$(prompt_value 'Snapshot cron schedule' '0 */6 * * *' "$SNAPSHOT_SCHEDULE")"
   STORAGE_PATH="$(prompt_value 'Storage path' '/' "$STORAGE_PATH")"
@@ -227,9 +215,6 @@ monitor:
 notifications:
   slack:
     webhook_url: "$(yaml_escape "$WEBHOOK_URL")"
-    channel: "$(yaml_escape "$CHANNEL")"
-    username: "$(yaml_escape "$USERNAME")"
-    icon_emoji: "$(yaml_escape "$ICON_EMOJI")"
 
 thresholds:
   cpu:

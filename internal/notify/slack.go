@@ -34,18 +34,12 @@ type Notification struct {
 
 type SlackNotifier struct {
 	webhookURL string
-	channel    string
-	username   string
-	iconEmoji  string
 	client     *http.Client
 }
 
 func NewSlackNotifier(cfg config.Config) *SlackNotifier {
 	return &SlackNotifier{
 		webhookURL: cfg.Notifications.Slack.WebhookURL,
-		channel:    cfg.Notifications.Slack.Channel,
-		username:   cfg.Notifications.Slack.Username,
-		iconEmoji:  cfg.Notifications.Slack.IconEmoji,
 		client: &http.Client{
 			Timeout: cfg.Monitor.HTTPTimeout,
 		},
@@ -78,11 +72,8 @@ func (s *SlackNotifier) Send(ctx context.Context, notification Notification) err
 }
 
 type slackPayload struct {
-	Text      string       `json:"text"`
-	Channel   string       `json:"channel,omitempty"`
-	Username  string       `json:"username,omitempty"`
-	IconEmoji string       `json:"icon_emoji,omitempty"`
-	Blocks    []slackBlock `json:"blocks,omitempty"`
+	Text   string       `json:"text"`
+	Blocks []slackBlock `json:"blocks,omitempty"`
 }
 
 type slackBlock struct {
@@ -121,11 +112,8 @@ func (s *SlackNotifier) buildPayload(notification Notification) slackPayload {
 	}
 
 	return slackPayload{
-		Text:      strings.TrimSpace(title + " - " + intro),
-		Channel:   s.channel,
-		Username:  s.username,
-		IconEmoji: s.iconEmoji,
-		Blocks:    blocks,
+		Text:   strings.TrimSpace(title + " - " + intro),
+		Blocks: blocks,
 	}
 }
 

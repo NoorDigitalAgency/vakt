@@ -41,9 +41,6 @@ func TestRunValidateConfig(t *testing.T) {
 notifications:
   slack:
     webhook_url: "https://hooks.slack.com/services/T000/B000/XXXX"
-    channel: "#ops-alerts"
-    username: "vakt"
-    icon_emoji: ":satellite:"
 thresholds:
   cpu:
     percent: 85

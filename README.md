@@ -73,7 +73,6 @@ Install a specific release tag and accept defaults for any values you do not ove
 curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh | sudo bash -s -- \
   --version v2026.06.02.1 \
   --webhook-url https://hooks.slack.com/services/REPLACE/ME \
-  --channel '#ops-alerts' \
   --server-name web-01 \
   --defaults
 ```

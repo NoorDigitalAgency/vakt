@@ -11,7 +11,7 @@ import (
 func TestBuildPayloadIncludesSnapshotDetails(t *testing.T) {
 	t.Parallel()
 
-	notifier := &SlackNotifier{channel: "#ops", username: "vakt", iconEmoji: ":satellite:"}
+	notifier := &SlackNotifier{}
 	payload := notifier.buildPayload(Notification{
 		Kind:      KindAlert,
 		Resource:  "cpu",
@@ -35,9 +35,6 @@ func TestBuildPayloadIncludesSnapshotDetails(t *testing.T) {
 		},
 	})
 
-	if payload.Channel != "#ops" {
-		t.Fatalf("payload.Channel = %q, want %q", payload.Channel, "#ops")
-	}
 	if len(payload.Blocks) != 2 {
 		t.Fatalf("len(payload.Blocks) = %d, want 2", len(payload.Blocks))
 	}
