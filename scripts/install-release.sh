@@ -38,7 +38,7 @@ STORAGE_COOLDOWN=""
 
 usage() {
   cat <<'USAGE'
-Usage: bash <(curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh) -- [options]
+Usage: curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/main/scripts/install-release.sh | sudo bash -s -- [options]
 
 Options:
   --version <tag|latest>
