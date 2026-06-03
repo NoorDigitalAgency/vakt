@@ -8,9 +8,6 @@ monitor:
 notifications:
   slack:
     webhook_url: "https://hooks.slack.com/services/REPLACE/ME"
-    channel: "#ops-alerts"
-    username: "vakt"
-    icon_emoji: ":satellite:"
 
 thresholds:
   cpu:

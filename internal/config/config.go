@@ -79,10 +79,7 @@ func defaultConfig() Config {
 			HTTPTimeout:  10 * time.Second,
 		},
 		Notifications: NotificationsConfig{
-			Slack: SlackConfig{
-				Username:  "vakt",
-				IconEmoji: ":satellite:",
-			},
+			Slack: SlackConfig{},
 		},
 		Thresholds: ThresholdsConfig{
 			CPU: ResourceThreshold{
