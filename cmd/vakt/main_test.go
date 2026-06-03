@@ -36,7 +36,7 @@ func TestRunValidateConfig(t *testing.T) {
   poll_interval: 15s
   snapshot_schedule: "0 */6 * * *"
   storage_path: "/"
-  host_alias: ""
+  server_name: "server-1"
   http_timeout: 10s
 notifications:
   slack:

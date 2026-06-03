@@ -21,6 +21,7 @@ type MonitorConfig struct {
 	PollInterval     time.Duration `yaml:"poll_interval"`
 	SnapshotSchedule string        `yaml:"snapshot_schedule"`
 	StoragePath      string        `yaml:"storage_path"`
+	ServerName       string        `yaml:"server_name"`
 	HostAlias        string        `yaml:"host_alias"`
 	HTTPTimeout      time.Duration `yaml:"http_timeout"`
 }

@@ -19,6 +19,7 @@ Key settings:
 - `monitor.poll_interval`: how often resources are sampled
 - `monitor.snapshot_schedule`: cron-style schedule for periodic snapshots
 - `monitor.storage_path`: filesystem path used for storage monitoring
+- `monitor.server_name`: display name included in snapshots; defaults to the machine hostname during release installation
 - `thresholds.*.percent`: usage percentage that starts an alert cycle
 - `thresholds.*.sustain_for`: how long the metric must stay above the threshold before the first alert
 - `thresholds.*.followup_step_percent`: minimum increase since the last alert before a follow-up snapshot is sent
@@ -73,10 +74,13 @@ sudo bash <(curl -fsSL https://raw.githubusercontent.com/NoorDigitalAgency/vakt/
   --version v2026.06.02.1 \
   --webhook-url https://hooks.slack.com/services/REPLACE/ME \
   --channel '#ops-alerts' \
+  --server-name web-01 \
   --defaults
 ```
 
-The release installer downloads `vakt_linux_amd64.tar.gz`, verifies its SHA-256 checksum, prompts for configuration values with defaults, writes `/etc/vakt/config.yaml`, installs the systemd unit, and enables and starts `vakt.service`.
+The release installer downloads `vakt_linux_amd64.tar.gz`, verifies its SHA-256 checksum, prompts for configuration values with defaults, uses the current machine hostname as the default `monitor.server_name`, writes `/etc/vakt/config.yaml`, installs the systemd unit, and enables and starts `vakt.service`.
+
+Snapshots include the configured server name and the detected public IP address when the public IP lookup succeeds.
 
 ## GitHub Actions release automation
 

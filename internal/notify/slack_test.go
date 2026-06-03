@@ -19,6 +19,7 @@ func TestBuildPayloadIncludesSnapshotDetails(t *testing.T) {
 		Threshold: 85,
 		Snapshot: monitor.Snapshot{
 			Hostname:            "server-1",
+			PublicIP:            "203.0.113.10",
 			CPUUsagePercent:     91.5,
 			MemoryUsagePercent:  73.2,
 			MemoryUsedBytes:     8 * 1024 * 1024 * 1024,
@@ -43,8 +44,17 @@ func TestBuildPayloadIncludesSnapshotDetails(t *testing.T) {
 	if got := payload.Text; !strings.Contains(got, "CPU threshold breached") {
 		t.Fatalf("payload.Text = %q, want CPU alert summary", got)
 	}
+	if len(payload.Blocks[1].Fields) < 6 {
+		t.Fatalf("len(payload.Blocks[1].Fields) = %d, want at least 6", len(payload.Blocks[1].Fields))
+	}
 	if got := payload.Blocks[1].Fields[2].Text; !strings.Contains(got, "220.00 GiB") {
 		t.Fatalf("storage field = %q, want formatted size", got)
+	}
+	if got := payload.Blocks[1].Fields[4].Text; !strings.Contains(got, "server-1") {
+		t.Fatalf("server field = %q, want server name", got)
+	}
+	if got := payload.Blocks[1].Fields[5].Text; !strings.Contains(got, "203.0.113.10") {
+		t.Fatalf("public ip field = %q, want public ip", got)
 	}
 }
 
@@ -52,10 +62,10 @@ func TestHumanBytes(t *testing.T) {
 	t.Parallel()
 
 	testCases := map[uint64]string{
-		512:                    "512 B",
-		1024:                   "1.00 KiB",
-		1024 * 1024:            "1.00 MiB",
-		5 * 1024 * 1024 * 1024: "5.00 GiB",
+		512:                              "512 B",
+		1024:                             "1.00 KiB",
+		1024 * 1024:                      "1.00 MiB",
+		5 * 1024 * 1024 * 1024:           "5.00 GiB",
 		1024 * 1024 * 1024 * 1024 * 1024: "1.00 PiB",
 	}
 
