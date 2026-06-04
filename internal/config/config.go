@@ -49,6 +49,7 @@ type ResourceThreshold struct {
 	ClearFor            time.Duration `yaml:"clear_for"`
 	FollowupStepPercent float64       `yaml:"followup_step_percent"`
 	Cooldown            time.Duration `yaml:"cooldown"`
+	ReminderAfter       time.Duration `yaml:"reminder_after"`
 }
 
 func Load(path string) (Config, error) {
@@ -87,18 +88,21 @@ func defaultConfig() Config {
 				ClearFor:            5 * time.Minute,
 				FollowupStepPercent: 5,
 				Cooldown:            15 * time.Minute,
+				ReminderAfter:       4 * time.Hour,
 			},
 			Memory: ResourceThreshold{
 				SustainFor:          2 * time.Minute,
 				ClearFor:            5 * time.Minute,
 				FollowupStepPercent: 5,
 				Cooldown:            15 * time.Minute,
+				ReminderAfter:       4 * time.Hour,
 			},
 			Storage: ResourceThreshold{
 				SustainFor:          2 * time.Minute,
 				ClearFor:            5 * time.Minute,
 				FollowupStepPercent: 3,
 				Cooldown:            30 * time.Minute,
+				ReminderAfter:       4 * time.Hour,
 			},
 		},
 	}
@@ -169,6 +173,9 @@ func validateThreshold(name string, threshold ResourceThreshold) error {
 	}
 	if threshold.Cooldown <= 0 {
 		return fmt.Errorf("%s.cooldown must be greater than zero", name)
+	}
+	if threshold.ReminderAfter <= 0 {
+		return fmt.Errorf("%s.reminder_after must be greater than zero", name)
 	}
 	return nil
 }

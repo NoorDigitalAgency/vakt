@@ -142,6 +142,8 @@ func kindFromEvent(kind monitor.EventKind) notify.Kind {
 		return notify.KindAlert
 	case monitor.EventFollowup:
 		return notify.KindFollowup
+	case monitor.EventReminder:
+		return notify.KindReminder
 	default:
 		return notify.KindRecovery
 	}
