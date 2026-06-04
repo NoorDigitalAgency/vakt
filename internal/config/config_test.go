@@ -28,18 +28,21 @@ thresholds:
     clear_for: 2m
     followup_step_percent: 4
     cooldown: 10m
+    reminder_after: 4h
   memory:
     percent: 85
     sustain_for: 45s
     clear_for: 2m
     followup_step_percent: 5
     cooldown: 10m
+    reminder_after: 4h
   storage:
     percent: 90
     sustain_for: 1m
     clear_for: 5m
     followup_step_percent: 2
     cooldown: 30m
+    reminder_after: 4h
 `)
 	if err := os.WriteFile(path, content, 0o600); err != nil {
 		t.Fatalf("write config: %v", err)
@@ -55,6 +58,9 @@ thresholds:
 	}
 	if got := cfg.Thresholds.Storage.FollowupStepPercent; got != 2 {
 		t.Fatalf("storage followup step = %v, want 2", got)
+	}
+	if got := cfg.Thresholds.CPU.ReminderAfter; got != 4*time.Hour {
+		t.Fatalf("cpu reminder_after = %v, want %v", got, 4*time.Hour)
 	}
 	if got := cfg.Monitor.ServerName; got != "server-1" {
 		t.Fatalf("server name = %q, want %q", got, "server-1")

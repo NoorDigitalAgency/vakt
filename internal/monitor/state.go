@@ -12,6 +12,7 @@ const (
 	EventAlert    EventKind = "alert"
 	EventFollowup EventKind = "followup"
 	EventRecovery EventKind = "recovery"
+	EventReminder EventKind = "reminder"
 )
 
 type Event struct {
@@ -31,6 +32,7 @@ type ThresholdTracker struct {
 	belowSince     time.Time
 	lastAlertValue float64
 	lastAlertAt    time.Time
+	lastReminderAt time.Time
 }
 
 func NewThresholdTracker(resource string, threshold config.ResourceThreshold) *ThresholdTracker {
@@ -72,6 +74,7 @@ func (t *ThresholdTracker) Evaluate(now time.Time, value float64) *Event {
 			previousAlert := t.lastAlertValue
 			t.lastAlertValue = 0
 			t.lastAlertAt = time.Time{}
+			t.lastReminderAt = time.Time{}
 			return &Event{
 				Kind:          EventRecovery,
 				Resource:      t.resource,
@@ -88,12 +91,27 @@ func (t *ThresholdTracker) Evaluate(now time.Time, value float64) *Event {
 		previousAlert := t.lastAlertValue
 		t.lastAlertValue = value
 		t.lastAlertAt = now
+		t.lastReminderAt = now
 		return &Event{
 			Kind:          EventFollowup,
 			Resource:      t.resource,
 			Current:       value,
 			PreviousAlert: previousAlert,
 			Threshold:     t.threshold,
+		}
+	}
+
+	reminderBase := t.lastReminderAt
+	if reminderBase.IsZero() {
+		reminderBase = t.lastAlertAt
+	}
+	if t.threshold.ReminderAfter > 0 && now.Sub(reminderBase) >= t.threshold.ReminderAfter {
+		t.lastReminderAt = now
+		return &Event{
+			Kind:      EventReminder,
+			Resource:  t.resource,
+			Current:   value,
+			Threshold: t.threshold,
 		}
 	}
 

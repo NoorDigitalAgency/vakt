@@ -19,6 +19,7 @@ const (
 	KindAlert     Kind = "alert"
 	KindFollowup  Kind = "followup"
 	KindRecovery  Kind = "recovery"
+	KindReminder  Kind = "reminder"
 	KindScheduled Kind = "scheduled"
 	KindManual    Kind = "manual"
 )
@@ -125,6 +126,8 @@ func messageHeader(notification Notification) (string, string) {
 		return strings.ToUpper(notification.Resource) + " usage increased", fmt.Sprintf("Usage climbed from %.2f%% to %.2f%% while still above the %.2f%% threshold.", notification.PreviousAlert, notification.Current, notification.Threshold)
 	case KindRecovery:
 		return strings.ToUpper(notification.Resource) + " recovered", fmt.Sprintf("Usage fell to %.2f%% and remained below the %.2f%% threshold.", notification.Current, notification.Threshold)
+	case KindReminder:
+		return strings.ToUpper(notification.Resource) + " still elevated", fmt.Sprintf("Usage is still at %.2f%%, above the %.2f%% threshold. No recovery yet.", notification.Current, notification.Threshold)
 	case KindManual:
 		return "Manual server snapshot", "Snapshot requested manually from the CLI."
 	default:
